@@ -1,41 +1,70 @@
-const CACHE_NAME = "tomato-bot-cache-v1";
-const urlsToCache = [
-    "/",
-    "/static/style.css",
-    "/static/manifest.json",
-    "/static/icons/icon-192x192.png",
-    "/static/icons/icon-512x512.png"
-];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomato Disease Pesticide Bot</title>
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="../static/manifest.json">
 
-// Install Service Worker and cache resources
-self.addEventListener("install", (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => cache.addAll(urlsToCache))
-            .then(self.skipWaiting())
-    );
-});
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="../static/style.css">
 
-// Activate Service Worker and remove old caches
-self.addEventListener("activate", (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) =>
-            Promise.all(
-                cacheNames.map((cache) => {
-                    if (cache !== CACHE_NAME) {
-                        return caches.delete(cache);
-                    }
-                })
-            )
-        )
-    );
-});
+    <!-- PWA Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-// Fetch resources from cache or network
-self.addEventListener("fetch", (event) => {
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
-    );
-});
+    <!-- Service Worker Registration -->
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/static/sw.js")
+                    .then((reg) => console.log("Service Worker Registered!", reg.scope))
+                    .catch((err) => console.log("Service Worker Registration Failed!", err));
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Tomato Disease Pesticide Bot 🍅</h1>
+        <p>Enter a tomato disease name below to find the best pesticide.</p>
+
+        <!-- Form -->
+        <form method="post">
+            <input type="text" name="disease" placeholder="Enter disease name..." required>
+            <button type="submit">Find Pesticide</button>
+        </form>
+
+        <!-- Response Display -->
+        {% if response %}
+            <div class="response-box">
+                <h2>Recommended Pesticide:</h2>
+                <p>{{ response }}</p>
+            </div>
+        {% endif %}
+
+        <!-- Offline Warning -->
+        <div id="offline-warning" style="display: none; color: red; font-weight: bold;">
+            You are offline! Some features may not work.
+        </div>
+    </div>
+
+    <script>
+        // Detect offline status
+        function updateOnlineStatus() {
+            const warning = document.getElementById("offline-warning");
+            if (!navigator.onLine) {
+                warning.style.display = "block";
+            } else {
+                warning.style.display = "none";
+            }
+        }
+
+        window.addEventListener("load", updateOnlineStatus);
+        window.addEventListener("online", updateOnlineStatus);
+        window.addEventListener("offline", updateOnlineStatus);
+    </script>
+</body>
+</html>
