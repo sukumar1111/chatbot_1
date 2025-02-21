@@ -1,6 +1,7 @@
 const CACHE_NAME = "tomato-bot-cache-v1";
 const urlsToCache = [
     "/",
+    "/offline.html",  // Add an offline page
     "/static/style.css",
     "/static/manifest.json",
     "/static/icons/icon-192x192.png",
@@ -31,11 +32,11 @@ self.addEventListener("activate", (event) => {
     );
 });
 
-// Fetch resources from cache or network
+// Fetch resources from cache or show offline page
 self.addEventListener("fetch", (event) => {
     event.respondWith(
         caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
+            return response || fetch(event.request).catch(() => caches.match("/offline.html"));
         })
     );
 });
