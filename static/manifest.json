@@ -1,21 +1,20 @@
 {
-    "name": "Tomato Pesticide Bot",
-    "short_name": "TomatoBot",
-    "start_url": "/",
-    "display": "fullscreen",
-    "background_color": "#ffffff",
-    "theme_color": "#4CAF50",
-    "icons": [
-      {
-        "src": "/static/images/icon-192.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      },
-      {
-        "src": "/static/images/icon-512.png",
-        "sizes": "512x512",
-        "type": "image/png"
-      }
-    ]
-  }
-  
+  "name": "Tomato Pesticide Bot",
+  "short_name": "TomatoBot",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "/static/nani.jpg",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/s1.jpg",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
