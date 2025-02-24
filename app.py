@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
+import time
 
 app = Flask(__name__)
 
@@ -16,13 +17,31 @@ disease_pesticides = {
     "Tomato___healthy": "Your tomato plant is healthy! No pesticides needed."
 }
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    response = ""
-    if request.method == "POST":
-        disease = request.form.get("disease")
-        response = disease_pesticides.get(disease, "I'm not sure about that disease. Please check with an expert.")
-    return render_template("index.html", response=response)
+# Crop improvement tips
+crop_improvement_tips = [
+    "Use well-drained soil rich in organic matter for better growth.",
+    "Rotate crops to prevent soil-borne diseases and improve yield.",
+    "Water early in the morning to avoid fungal infections.",
+    "Use natural compost and fertilizers to enhance soil health.",
+    "Control weeds regularly to prevent nutrient competition."
+]
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/get_response", methods=["POST"])
+def get_response():
+    data = request.json
+    disease = data.get("disease", "").strip()
+
+    # Get pesticide recommendation
+    pesticide = disease_pesticides.get(disease, "I am not sure about that disease. Please consult an expert.")
+
+    # Provide random crop improvement tip
+    tip = crop_improvement_tips[int(time.time()) % len(crop_improvement_tips)]
+
+    return jsonify({"pesticide": pesticide, "tip": tip})
 
 if __name__ == "__main__":
     app.run(debug=True)
