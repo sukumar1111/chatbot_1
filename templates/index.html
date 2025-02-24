@@ -1,21 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tomato Disease Pesticide Bot</title>
-    
-    <!-- Manifest for PWA -->
+    <title>Tomato Disease Chatbot 🍅</title>
     <link rel="manifest" href="../static/manifest.json">
-
-    <!-- Stylesheet -->
     <link rel="stylesheet" href="../static/style.css">
-
-    <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <!-- Service Worker Registration -->
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
@@ -25,46 +19,151 @@
             });
         }
     </script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: url("../static/img1.jpg") no-repeat center center/cover;
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            display: inline-block;
+            font-size: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        #chatbox {
+            width: 90%;
+            max-width: 450px;
+            height: 60vh;
+            overflow-y: auto;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            margin: auto;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            border: 3px solid #4CAF50;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px 14px;
+            border-radius: 20px;
+            display: inline-block;
+            max-width: 75%;
+            font-size: 16px;
+            color: white;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        .user {
+            background-color: #2e7d32;
+            text-align: right;
+            float: right;
+            clear: both;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .bot {
+            background-color: #388E3C;
+            text-align: left;
+            float: left;
+            clear: both;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ffffff;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        button {
+            padding: 12px;
+            background: #ffffff;
+            color: #2e7d32;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Tomato Disease Pesticide Bot 🍅</h1>
-        <p>Enter a tomato disease name below to find the best pesticide.</p>
+    <h1>🍅 Tomato Disease Chatbot 🌱</h1>
+    <div id="chatbox">
+        <p class="message bot">🌿 Hello Farmer! Tell me the disease, and I'll suggest pesticides & crop tips.</p>
+    </div>
 
-        <!-- Form -->
-        <form method="post">
-            <input type="text" name="disease" placeholder="Enter disease name..." required>
-            <button type="submit">Find Pesticide</button>
-        </form>
-
-        <!-- Response Display -->
-        {% if response %}
-            <div class="response-box">
-                <h2>Recommended Pesticide:</h2>
-                <p>{{ response }}</p>
-            </div>
-        {% endif %}
-
-        <!-- Offline Warning -->
-        <div id="offline-warning" style="display: none; color: red; font-weight: bold;">
-            You are offline! Some features may not work.
-        </div>
+    <div class="input-container">
+        <input id="userInput" type="text" placeholder="Enter disease name...">
+        <button onclick="sendMessage()">Ask</button>
     </div>
 
     <script>
-        // Detect offline status
-        function updateOnlineStatus() {
-            const warning = document.getElementById("offline-warning");
-            if (!navigator.onLine) {
-                warning.style.display = "block";
-            } else {
-                warning.style.display = "none";
-            }
-        }
+        function sendMessage() {
+            let userInput = document.getElementById("userInput").value;
+            if (!userInput) return;
 
-        window.addEventListener("load", updateOnlineStatus);
-        window.addEventListener("online", updateOnlineStatus);
-        window.addEventListener("offline", updateOnlineStatus);
+            let chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<p class="message user">👨‍🌾 ${userInput}</p>`;
+
+            let typingEffect = document.createElement("p");
+            typingEffect.classList.add("message", "bot", "typing");
+            typingEffect.innerText = "🌱 Typing...";
+            chatbox.appendChild(typingEffect);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            fetch("/get_response", {
+                method: "POST",
+                body: JSON.stringify({ disease: userInput }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                setTimeout(() => {
+                    chatbox.removeChild(typingEffect);
+                    chatbox.innerHTML += `<p class="message bot"><strong>🌾 Pesticide:</strong> ${data.pesticide}</p>`;
+                    chatbox.innerHTML += `<p class="message bot"><strong>🌻 Tip:</strong> ${data.tip}</p>`;
+                    document.getElementById("userInput").value = "";
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                }, 1200);
+            });
+        }
     </script>
 </body>
 </html>
